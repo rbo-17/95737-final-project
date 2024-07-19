@@ -1,0 +1,8 @@
+# Intellij
+.idea/
+
+# Environment variables
+.env
+
+# Results files
+results/
