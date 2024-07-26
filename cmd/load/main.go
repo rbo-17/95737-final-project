@@ -6,10 +6,6 @@ import (
 	"github.com/rbo-17/95737-final-project/setup"
 )
 
-const tableNameSmallText = "SMALL_TEXT"
-const tableNameLargeText = "LARGE_TEXT"
-const tableNameImage = "IMAGES"
-
 func BuildInsertInto(table string, records map[int64]setup.TestRecord) (string, []interface{}) {
 	sqlStr := fmt.Sprintf("INSERT INTO %s(key, payload) VALUES ", table)
 	var sqlVals []interface{}
@@ -19,7 +15,7 @@ func BuildInsertInto(table string, records map[int64]setup.TestRecord) (string, 
 		vals = append(sqlVals, k, v)
 	}
 
-	//trim the last ,
+	// trim the last ,
 	sqlStr = sqlStr[0 : len(sqlStr)-1]
 
 	return sqlStr, sqlVals

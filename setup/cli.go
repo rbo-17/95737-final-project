@@ -1,19 +1,17 @@
-package main
+package setup
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
 	dbi "github.com/rbo-17/95737-final-project/db"
+	//dbmongodb "github.com/rbo-17/95737-final-project/db/mongodb"
+	dbmysql "github.com/rbo-17/95737-final-project/db/mysql"
 	dbredis "github.com/rbo-17/95737-final-project/db/redis"
-	"github.com/rbo-17/95737-final-project/perftest"
-	"github.com/rbo-17/95737-final-project/setup"
 	"github.com/rbo-17/95737-final-project/utils"
 	"os"
 	"strings"
-	"time"
 )
 
-func printHelpDbName() {
+func PrintHelpDbName() {
 	options := []string{utils.DbNameRedis, utils.DbNameMongoDB, utils.DbNameCassandra, utils.DbNameMySQL}
 	_, err := fmt.Fprintln(os.Stderr, "Invalid database provided! Please provide a valid option:")
 	if err != nil {
@@ -29,7 +27,7 @@ func printHelpDbName() {
 	os.Exit(1)
 }
 
-func printHelpTestType() {
+func PrintHelpTestType() {
 	options := []string{string(utils.TestTypeRead), string(utils.TestTypeBalanced), string(utils.TestTypeWrite)}
 	_, err := fmt.Fprintln(os.Stderr, "Invalid test type provided! Please provide a valid option:")
 	if err != nil {
@@ -45,7 +43,7 @@ func printHelpTestType() {
 	os.Exit(1)
 }
 
-func printHelpDataType() {
+func PrintHelpDataType() {
 	options := []string{string(utils.TestDataTypeSm), string(utils.TestDataTypeLg), string(utils.TestDataTypeImg)}
 	_, err := fmt.Fprintln(os.Stderr, "Invalid data type provided! Please provide a valid option:")
 	if err != nil {
@@ -61,29 +59,9 @@ func printHelpDataType() {
 	os.Exit(1)
 }
 
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file!")
-		os.Exit(1)
-	}
-}
+func ValidateDbNameArg(dbNameArg string) dbi.Db {
 
-func main() {
-
-	if len(os.Args) < 2 {
-		printHelpDbName()
-	} else if len(os.Args) < 3 {
-		printHelpTestType()
-	} else if len(os.Args) < 4 {
-		printHelpDataType()
-	}
-
-	dbNameArg := os.Args[1]
-	testTypeArg := os.Args[2]
-	dataTypeArg := os.Args[3]
-
-	// Validate dbName arg and get db to benchmark
+	// Validate dbName arg and return db to benchmark
 	var db dbi.Db
 	switch dbNameArg {
 	case utils.DbNameRedis:
@@ -91,16 +69,22 @@ func main() {
 
 	case utils.DbNameMongoDB:
 		panic("not implemented yet!")
+		//db = dbmongodb.NewMongoDB()
 
 	case utils.DbNameCassandra:
 		panic("not implemented yet!")
 
 	case utils.DbNameMySQL:
-		panic("not implemented yet!")
+		db = dbmysql.NewMySQL()
 
 	default:
-		printHelpDbName()
+		PrintHelpDbName()
 	}
+
+	return db
+}
+
+func ValidateTestTypeArg(testTypeArg string) utils.TestType {
 
 	// Validate testType
 	var testType utils.TestType
@@ -115,8 +99,14 @@ func main() {
 		testType = utils.TestTypeWrite
 
 	default:
-		printHelpTestType()
+		PrintHelpTestType()
 	}
+
+	return testType
+
+}
+
+func ValidateDataTypeArg(dataTypeArg string) utils.TestDataType {
 
 	// Validate dataType
 	var dataType utils.TestDataType
@@ -131,55 +121,8 @@ func main() {
 		dataType = utils.TestDataTypeImg
 
 	default:
-		printHelpDataType()
+		PrintHelpDataType()
 	}
 
-	utils.UpdatePrefix(db.GetName(), testType, dataType)
-
-	// Set up db connection and load test data
-	db.Init()
-	sds, err := setup.LoadStarterDataset(db, dataType)
-	if err != nil {
-		panic(err)
-	}
-
-	// Get new (unloaded) records to perform test with
-	writeFactor, err := utils.TestTypeToWriteFactor(testType)
-	if err != nil {
-		panic(err)
-	}
-
-	//fmt.Println("writeFactor", writeFactor)
-
-	// Add extra to write factor to account for random variation
-	nds, err := setup.GetTestDataSet(writeFactor+0.01, dataType)
-	if err != nil {
-		panic(err)
-	}
-
-	//fmt.Println("nds len", len(nds))
-
-	utils.Print("Loading new dataset for testing...")
-
-	// Prepare & run test
-	ops, err := perftest.Prepare(sds, nds, testType, dataType)
-	if err != nil {
-		panic(err)
-	}
-
-	utils.Print("Loading complete. Starting test now.")
-	start := time.Now()
-	err = perftest.Run(db, testType, dataType, ops)
-	if err != nil {
-		panic(err)
-	}
-
-	dur := int(time.Since(start).Seconds())
-	utils.Print(fmt.Sprintf("Testing completed in %d seconds.", dur))
-
-	// Clean up db
-	err = db.DeleteAll()
-	if err != nil {
-		panic(err)
-	}
+	return dataType
 }

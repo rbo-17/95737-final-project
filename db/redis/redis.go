@@ -15,7 +15,7 @@ func init() {
 
 type Redis struct {
 	Name string
-	C    *RedisConfigs
+	C    *Configs
 	Rdb  *redis.Client
 }
 
@@ -27,11 +27,10 @@ func NewRedis() *Redis {
 	}
 }
 
-// TODO: Bubble error up
-func (r *Redis) Init() {
+func (r *Redis) Init() error {
 	c, err := GetRedisConfigs()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	r.C = &c
 
@@ -42,6 +41,8 @@ func (r *Redis) Init() {
 	})
 
 	r.Rdb = rdb
+
+	return nil
 }
 
 func (r *Redis) GetName() string {
@@ -70,12 +71,20 @@ func (r *Redis) Put(k string, v []byte) error {
 	return nil
 }
 
-//func (r *Redis) PutMany() error {
-//	err := r.Rdb.MSet(ctx, k, v, 0).Err()
-//	if err != nil {
-//		panic(err)
-//	}
-//}
+func (r *Redis) PutMany(kv map[string][]byte) error {
+
+	var input []interface{}
+	for k, v := range kv {
+		input = append(input, k, v)
+	}
+
+	err := r.Rdb.MSet(ctx, input...).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func (r *Redis) DeleteAll() error {
 	err := r.Rdb.FlushDB(ctx).Err()

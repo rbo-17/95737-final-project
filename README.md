@@ -71,17 +71,9 @@ MySQL:
 - Bytes/sec
 - Req/sec
 
-```html
-<h2>Example of code</h2>
+![Image alt text](hello-animated.svg)
 
-<pre>
-    <div class="container">
-        <div class="block two first">
-            <h2>Your title</h2>
-            <div class="wrap">
-            //Your content
-            </div>
-        </div>
-    </div>
-</pre>
-```
+<div style="width: 100%;">
+  <img src="animated.svg" style="width: 100%;" alt="Click to see the source">
+</div>
+

@@ -6,3 +6,11 @@
 
 # Results files
 results/
+
+# Terraform state & lock files
+.terraform/
+.terraform*
+terraform.*
+
+# Python venv
+venv/

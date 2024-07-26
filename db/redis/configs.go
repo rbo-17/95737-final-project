@@ -2,18 +2,16 @@ package redis
 
 import (
 	"errors"
-	"fmt"
-	"github.com/redis/go-redis/v9"
 	"os"
 )
 
-type RedisConfigs struct {
+type Configs struct {
 	Password string
 	Address  string
 }
 
-func GetRedisConfigs() (RedisConfigs, error) {
-	c := RedisConfigs{
+func GetRedisConfigs() (Configs, error) {
+	c := Configs{
 		Password: os.Getenv("REDIS_PASSWORD"),
 		Address:  os.Getenv("REDIS_ADDRESS"),
 	}
@@ -27,20 +25,4 @@ func GetRedisConfigs() (RedisConfigs, error) {
 	}
 
 	return c, nil
-}
-
-func GetRedisInstance() (*redis.Client, error) {
-
-	c, err := GetRedisConfigs()
-	if err != nil {
-		panic(err)
-	}
-
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:6379", c.Address),
-		Password: c.Password,
-		DB:       0, // use default DB
-	})
-
-	return rdb, nil
 }

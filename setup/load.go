@@ -21,19 +21,40 @@ func LoadStarterDataset(dbIns db.Db, dataType utils.TestDataType) (map[int64]Tes
 	//prefix := fmt.Sprintf("[%s][%s]", dbIns.GetName(), string(dataType))
 	//fmt.Println(fmt.Sprintf("%s Loading %d items...", prefix, len(dataSet)))
 
+	dataSetList := RecordsMapToList(dataSet)
+
 	utils.Print(fmt.Sprintf("Loading starter dataset of %d items...", len(dataSet)))
 	bCnt := 0
-	for k, v := range dataSet {
-		key := dbIns.GetKey(strconv.Itoa(int(k)))
-		value := v.Value
+	//fmt.Println("len(dataSetList)", len(dataSetList))
+	for i := 0; i < len(dataSetList); i += 100 {
+		batchList := dataSetList[i : i+100]
+		batch := make(map[string][]byte, len(batchList))
 
-		err = dbIns.Put(key, value)
+		for _, v := range batchList {
+			key := dbIns.GetKey(strconv.Itoa(int(v.KeyId)))
+			batch[key] = v.Value
+			bCnt += len(v.Value)
+		}
+
+		err = dbIns.PutMany(batch)
 		if err != nil {
 			return nil, err
 		}
-
-		bCnt += len(value)
 	}
+
+	//utils.Print(fmt.Sprintf("Loading starter dataset of %d items...", len(dataSet)))
+	//bCnt := 0
+	//for k, v := range dataSet {
+	//	key := dbIns.GetKey(strconv.Itoa(int(k)))
+	//	value := v.Value
+	//
+	//	err = dbIns.Put(key, value)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//
+	//	bCnt += len(value)
+	//}
 
 	iCnt := len(dataSet)
 	bPerItem := bCnt / iCnt

@@ -1,11 +1,11 @@
 package db
 
 type Db interface {
-	Init()
+	Init() error
 	GetKey(kid string) string
 	GetName() string
 	Get(k string) ([]byte, error)
 	Put(k string, v []byte) error
-	//PutMany()
+	PutMany(kv map[string][]byte) error
 	DeleteAll() error
 }

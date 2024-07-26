@@ -4,7 +4,8 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"github.com/rbo-17/95737-final-project/db"
+	dbi "github.com/rbo-17/95737-final-project/db"
+	"github.com/rbo-17/95737-final-project/setup"
 	"github.com/rbo-17/95737-final-project/utils"
 	"os"
 	"strconv"
@@ -12,7 +13,58 @@ import (
 	"time"
 )
 
-func Run(dbIns db.Db, testType utils.TestType, dataType utils.TestDataType, ops []TestOp) error {
+func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType) {
+	utils.UpdatePrefix(db.GetName(), testType, dataType)
+
+	// Set up db connection and load test data
+	err := db.Init()
+	if err != nil {
+		panic(err)
+	}
+
+	sds, err := setup.LoadStarterDataset(db, dataType)
+	if err != nil {
+		panic(err)
+	}
+
+	// Get new (unloaded) records to perform test with
+	writeFactor, err := utils.TestTypeToWriteFactor(testType)
+	if err != nil {
+		panic(err)
+	}
+
+	// Add extra to write factor to account for random variation
+	nds, err := setup.GetTestDataSet(writeFactor+0.05, dataType)
+	if err != nil {
+		panic(err)
+	}
+
+	utils.Print("Loading new dataset for testing...")
+
+	// Prepare & run test
+	ops, err := Prepare(sds, nds, testType, dataType)
+	if err != nil {
+		panic(err)
+	}
+
+	utils.Print("Loading complete. Starting test now.")
+	start := time.Now()
+	err = Run(db, testType, dataType, ops)
+	if err != nil {
+		panic(err)
+	}
+
+	dur := int(time.Since(start).Seconds())
+	utils.Print(fmt.Sprintf("Testing completed in %d seconds.", dur))
+
+	// Clean up db
+	err = db.DeleteAll()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops []TestOp) error {
 
 	//ops = ops[:1000]
 
@@ -75,7 +127,7 @@ func Run(dbIns db.Db, testType utils.TestType, dataType utils.TestDataType, ops 
 	return nil
 }
 
-func PerformOpWorker(db db.Db, inCh chan TestOp, outCh chan TestOpResult, wg *sync.WaitGroup) {
+func PerformOpWorker(db dbi.Db, inCh chan TestOp, outCh chan TestOpResult, wg *sync.WaitGroup) {
 
 	defer wg.Done()
 
@@ -90,7 +142,7 @@ func PerformOpWorker(db db.Db, inCh chan TestOp, outCh chan TestOpResult, wg *sy
 	//fmt.Println("finishing...")
 }
 
-func PerformOp(db db.Db, op TestOp) TestOpResult {
+func PerformOp(db dbi.Db, op TestOp) TestOpResult {
 
 	start := time.Now()
 
@@ -180,9 +232,9 @@ func WriteResultsToFile(dbName string, totalTimeTaken time.Duration, testType ut
 	}
 
 	// Create results dir if it doesn't exist
-	resultsDir := "results"
-	err := os.Mkdir(resultsDir, os.ModePerm)
-	if err != nil && !os.IsExist(err) {
+	resultsDir := "results/raw"
+	err := os.MkdirAll(resultsDir, os.ModePerm)
+	if err != nil {
 		return err
 	}
 

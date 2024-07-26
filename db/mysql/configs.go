@@ -1,22 +1,19 @@
 package mysql
 
 import (
-	"database/sql"
 	"errors"
-	"fmt"
 	"os"
-	"time"
 )
 
-type MysqlConfigs struct {
+type Configs struct {
 	Username string
 	Password string
 	Address  string
 	DbName   string
 }
 
-func GetMysqlConfigs() (MysqlConfigs, error) {
-	c := MysqlConfigs{
+func GetConfigs() (Configs, error) {
+	c := Configs{
 		Username: os.Getenv("MYSQL_USERNAME"),
 		Password: os.Getenv("MYSQL_PASSWORD"),
 		Address:  os.Getenv("MYSQL_ADDRESS"),
@@ -40,25 +37,4 @@ func GetMysqlConfigs() (MysqlConfigs, error) {
 	}
 
 	return c, nil
-}
-
-func GetMysqlInstance() (*sql.DB, error) {
-	c, err := GetMysqlConfigs()
-	if err != nil {
-		panic(err)
-	}
-
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", c.Username, c.Password, c.Address, c.DbName)
-
-	// See setup documentation here: https://github.com/go-sql-driver/mysql
-	db, err := sql.Open("mysql", connectionString)
-	if err != nil {
-		panic(err)
-	}
-
-	db.SetConnMaxLifetime(time.Minute * 3)
-	db.SetMaxOpenConns(20)
-	db.SetMaxIdleConns(10)
-
-	return db, nil
 }
