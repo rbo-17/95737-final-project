@@ -1,7 +1,7 @@
 #!/bin/bash
 
 INSTANCE_NAME='cmu95737-db-host'
-INSTANCE_COUNT=$(aws ec2 describe-instances --filter Name='tag:Name',Values=${INSTANCE_NAME} --filter Name=instance-state-name,Values=running | jq -r '.Reservations' | jq length)
+INSTANCE_COUNT=$(aws ec2 describe-instances --filters Name='tag:Name',Values=${INSTANCE_NAME} Name=instance-state-name,Values=running | jq -r '.Reservations' | jq length)
 
 if [[ ${INSTANCE_COUNT} -eq 0 ]]; then
   echo "No VM detected! Exiting..."
@@ -13,6 +13,6 @@ elif [[ ! ${INSTANCE_COUNT} -eq 1 ]]; then
 
 fi
 
-INSTANCE_IP=$(aws ec2 describe-instances --filter Name='tag:Name',Values=${INSTANCE_NAME} --filter Name=instance-state-name,Values=running | jq -r '.Reservations[].Instances[] | .PublicIpAddress')
+INSTANCE_IP=$(aws ec2 describe-instances --filters Name='tag:Name',Values=${INSTANCE_NAME} Name=instance-state-name,Values=running | jq -r '.Reservations[].Instances[] | .PublicIpAddress')
 ssh -i ~/cmu95737.pem "ubuntu@${INSTANCE_IP}"
 

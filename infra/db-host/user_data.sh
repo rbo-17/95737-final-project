@@ -48,15 +48,23 @@ deb https://debian.cassandra.apache.org 41x main
 curl -o /etc/apt/keyrings/apache-cassandra.asc https://downloads.apache.org/cassandra/KEYS
 
 apt update
-apt install -y cassandra
+apt install -y cassandra net-tools
 
 service cassandra stop
 DEFAULT_CASSANDRA_DIR='/var/lib/cassandra'
 DEFAULT_CASSANDRA_DIR_ESC='\/var\/lib\/cassandra'
 NEW_CASSANDRA_DIR='/ephemeral/cassandra'
 NEW_CASSANDRA_DIR_ESC='\/ephemeral\/cassandra'
+chmod -R a+rwx ${NEW_CASSANDRA_DIR}
 sed -i -E "s/${DEFAULT_CASSANDRA_DIR_ESC}/${NEW_CASSANDRA_DIR_ESC}/g" /etc/cassandra/cassandra.yaml
+sed -i "s/rpc_address: localhost/rpc_address: 0.0.0.0/g" /etc/cassandra/cassandra.yaml
+PRIVATE_IP=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
+sed -i "s/# broadcast_rpc_address: 1.2.3.4/broadcast_rpc_address: ${PRIVATE_IP}/g" /etc/cassandra/cassandra.yaml
 service cassandra start
+
+
+
+
 
 #wget -q -O cassandra-keys https://www.apache.org/dist/cassandra/KEYS | sudo apt-key add -
 #echo "deb http://www.apache.org/dist/cassandra/debian 40x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list deb http://www.apache.org/dist/cassandra/debian 40x main
