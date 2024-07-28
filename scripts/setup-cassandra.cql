@@ -1,0 +1,7 @@
+USE "CMU95737";
+
+CREATE TABLE KEY_VALUE
+(
+    ID      VARCHAR PRIMARY KEY,
+    Payload BLOB
+);

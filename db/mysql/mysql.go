@@ -31,6 +31,8 @@ type MySQL struct {
 	TableName string
 	C         *Configs
 	Db        *sql.DB
+	GetStmt   *sql.Stmt
+	PutStmt   *sql.Stmt
 }
 
 func NewMySQL() *MySQL {
@@ -63,6 +65,21 @@ func (m *MySQL) Init() error {
 	m.C = &c
 	m.Db = db
 
+	// Build get prepare statement
+	getStmt, err := m.Db.Prepare(fmt.Sprintf("SELECT * FROM %s WHERE ID = ?;", m.TableName))
+	if err != nil {
+		return err
+	}
+
+	// Build the put prepare statement
+	putStmt, err := m.Db.Prepare(fmt.Sprintf("INSERT INTO %s (ID, Value) VALUES (?, ?);", m.TableName))
+	if err != nil {
+		return err
+	}
+
+	m.GetStmt = getStmt
+	m.PutStmt = putStmt
+
 	return nil
 }
 
@@ -76,13 +93,8 @@ func (m *MySQL) GetKey(keyId string) string {
 
 func (m *MySQL) Get(k string) ([]byte, error) {
 
-	stmt, err := m.Db.Prepare(fmt.Sprintf("SELECT * FROM %s WHERE ID = ?", m.TableName))
-	if err != nil {
-		return nil, err
-	}
-
 	var res KeyValue
-	err = stmt.QueryRow(k).Scan(&res.Key, &res.Value)
+	err := m.GetStmt.QueryRow(k).Scan(&res.Key, &res.Value)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -145,6 +157,27 @@ func (m *MySQL) DeleteAll() error {
 	_, err := m.Db.Query(fmt.Sprintf("DELETE FROM %s;", m.TableName))
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MySQL) Close() error {
+
+	err := m.GetStmt.Close()
+	if err != nil {
+		return err
+	}
+
+	err = m.PutStmt.Close()
+	if err != nil {
+		return err
+	}
+
+	err = m.Db.Close()
+	if err != nil {
+		return err
+
 	}
 
 	return nil

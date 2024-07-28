@@ -94,3 +94,13 @@ func (r *Redis) DeleteAll() error {
 
 	return nil
 }
+
+func (r *Redis) Close() error {
+
+	err := r.Rdb.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -3,7 +3,8 @@ package setup
 import (
 	"fmt"
 	dbi "github.com/rbo-17/95737-final-project/db"
-	//dbmongodb "github.com/rbo-17/95737-final-project/db/mongodb"
+	dbcassandra "github.com/rbo-17/95737-final-project/db/cassandra"
+	dbmongodb "github.com/rbo-17/95737-final-project/db/mongodb"
 	dbmysql "github.com/rbo-17/95737-final-project/db/mysql"
 	dbredis "github.com/rbo-17/95737-final-project/db/redis"
 	"github.com/rbo-17/95737-final-project/utils"
@@ -68,11 +69,10 @@ func ValidateDbNameArg(dbNameArg string) dbi.Db {
 		db = dbredis.NewRedis()
 
 	case utils.DbNameMongoDB:
-		panic("not implemented yet!")
-		//db = dbmongodb.NewMongoDB()
+		db = dbmongodb.NewMongoDB()
 
 	case utils.DbNameCassandra:
-		panic("not implemented yet!")
+		db = dbcassandra.NewCassandra()
 
 	case utils.DbNameMySQL:
 		db = dbmysql.NewMySQL()

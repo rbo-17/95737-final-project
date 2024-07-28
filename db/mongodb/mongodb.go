@@ -4,7 +4,6 @@ package mongodb
 import (
 	"context"
 	"fmt"
-	"github.com/rbo-17/95737-final-project/setup"
 	"github.com/rbo-17/95737-final-project/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,6 +14,11 @@ var ctx context.Context
 
 func init() {
 	ctx = context.Background()
+}
+
+type KeyValue struct {
+	Key   string
+	Value []byte
 }
 
 type MongoDB struct {
@@ -44,9 +48,11 @@ func (m *MongoDB) Init() error {
 	userName := c.Username
 	password := c.Password
 	hostName := c.Address
-	connOpts := ""
+	connOpts := c.DbName
 
 	uri := fmt.Sprintf("%s://%s:%s@%s:27017/%s", protocol, userName, password, hostName, connOpts)
+
+	fmt.Println("uri", uri)
 
 	// Use the SetServerAPIOptions() method to set the Stable API version to 1
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
@@ -76,7 +82,7 @@ func (m *MongoDB) Get(k string) ([]byte, error) {
 
 	filter := bson.D{{"_id", k}}
 
-	res := setup.TestRecord{}
+	res := KeyValue{}
 	err := m.Collection.FindOne(ctx, filter).Decode(&res)
 	if err != nil {
 		return nil, err
@@ -121,6 +127,16 @@ func (m *MongoDB) PutMany(kv map[string][]byte) error {
 
 func (m *MongoDB) DeleteAll() error {
 	err := m.Collection.Drop(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MongoDB) Close() error {
+
+	err := m.Client.Disconnect(ctx)
 	if err != nil {
 		return err
 	}

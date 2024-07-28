@@ -15,4 +15,4 @@ source ${ENV_FILE}
 mysql -u root -p -e 'CREATE DATABASE '${MYSQL_DB_NAME}';'
 mysql -u root -p -e "CREATE USER '"${MYSQL_USERNAME}"'@'localhost' IDENTIFIED BY '"${MYSQL_PASSWORD}"';"
 mysql -u root -p -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB_NAME}.* TO '"${MYSQL_USERNAME}"'@'localhost';"
-mysql -u ${MYSQL_USERNAME} -p${MYSQL_PASSWORD} < ./setup-mysql-table.sql
+mysql -u ${MYSQL_USERNAME} -p${MYSQL_PASSWORD} < ./setup-mysql.sql

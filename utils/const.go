@@ -1,7 +1,7 @@
 package utils
 
 const DbNameRedis = "redis"
-const DbNameMongoDB = "mongo"
+const DbNameMongoDB = "mongodb"
 const DbNameCassandra = "cassandra"
 const DbNameMySQL = "mysql"
 

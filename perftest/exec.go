@@ -62,6 +62,12 @@ func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType) {
 	if err != nil {
 		panic(err)
 	}
+
+	// Close connections
+	err = db.Close()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops []TestOp) error {
