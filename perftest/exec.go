@@ -72,8 +72,7 @@ func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType) {
 
 func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops []TestOp) error {
 
-	startCh := make(chan bool, utils.WorkerCount)
-	inCh := make(chan *TestOp, len(ops))
+	inCh := make(chan TestOp, len(ops))
 	outCh := make(chan TestOpResult, len(ops))
 	reqWg := new(sync.WaitGroup)
 	responses := make([]TestOpResult, 0)
@@ -83,20 +82,15 @@ func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops
 	// Create workers
 	for i := 0; i < utils.WorkerCount; i++ {
 		reqWg.Add(1)
-		go PerformOpWorker(dbIns, startCh, inCh, outCh, reqWg)
-	}
-
-	// Load data into channel
-	for _, op := range ops {
-		inCh <- &op
+		go PerformOpWorker(dbIns, inCh, outCh, reqWg)
 	}
 
 	// Start timer
 	start := time.Now()
 
-	// Give signal to start
-	for i := 0; i < utils.WorkerCount; i++ {
-		startCh <- true
+	// Load data into channel
+	for _, op := range ops {
+		inCh <- op
 	}
 
 	utils.Print(fmt.Sprintf("All data loaded into channels, proceeding to wait..."))
@@ -125,11 +119,9 @@ func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops
 	return nil
 }
 
-func PerformOpWorker(db dbi.Db, startCh chan bool, inCh chan *TestOp, outCh chan TestOpResult, wg *sync.WaitGroup) {
+func PerformOpWorker(db dbi.Db, inCh chan TestOp, outCh chan TestOpResult, wg *sync.WaitGroup) {
 
 	defer wg.Done()
-
-	_ = <-startCh
 
 	for op := range inCh {
 		res := PerformOp(db, op)
@@ -137,7 +129,7 @@ func PerformOpWorker(db dbi.Db, startCh chan bool, inCh chan *TestOp, outCh chan
 	}
 }
 
-func PerformOp(db dbi.Db, op *TestOp) TestOpResult {
+func PerformOp(db dbi.Db, op TestOp) TestOpResult {
 
 	start := time.Now()
 
@@ -156,8 +148,8 @@ func PerformOp(db dbi.Db, op *TestOp) TestOpResult {
 		}
 
 		// Validate returned bytes matches expected value
-		if len(res) != op.ValueSize {
-			errMsg := fmt.Sprintf("bytes returned (%d) do not match expected count (%d)", len(res), op.ValueSize)
+		if len(*res) != op.ValueSize {
+			errMsg := fmt.Sprintf("bytes returned (%d) do not match expected count (%d)", len(*res), op.ValueSize)
 			return TestOpResult{
 				Time:    start,
 				OpType:  op.OpType,

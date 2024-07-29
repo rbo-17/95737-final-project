@@ -53,17 +53,17 @@ func (r *Redis) GetKey(keyId string) string {
 	return fmt.Sprintf(fmt.Sprintf("smtxt:%s", keyId))
 }
 
-func (r *Redis) Get(k string) ([]byte, error) {
+func (r *Redis) Get(k string) (*[]byte, error) {
 	value, err := r.Rdb.Get(ctx, k).Bytes()
 	if err != nil {
-		return []byte{}, err
+		return &[]byte{}, err
 	}
 
-	return value, nil
+	return &value, nil
 }
 
-func (r *Redis) Put(k string, v []byte) error {
-	err := r.Rdb.Set(ctx, k, v, 0).Err()
+func (r *Redis) Put(k string, v *[]byte) error {
+	err := r.Rdb.Set(ctx, k, *v, 0).Err()
 	if err != nil {
 		return err
 	}
@@ -71,11 +71,11 @@ func (r *Redis) Put(k string, v []byte) error {
 	return nil
 }
 
-func (r *Redis) PutMany(kv map[string][]byte) error {
+func (r *Redis) PutMany(kv map[string]*[]byte) error {
 
 	var input []interface{}
 	for k, v := range kv {
-		input = append(input, k, v)
+		input = append(input, k, *v)
 	}
 
 	err := r.Rdb.MSet(ctx, input...).Err()

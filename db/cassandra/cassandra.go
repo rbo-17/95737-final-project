@@ -66,7 +66,7 @@ func (c *Cassandra) GetKey(keyId string) string {
 	return keyId
 }
 
-func (c *Cassandra) Get(k string) ([]byte, error) {
+func (c *Cassandra) Get(k string) (*[]byte, error) {
 
 	var v []byte
 	res := c.Session.Query(fmt.Sprintf(`SELECT Payload FROM %s WHERE ID = ?;`, c.TableName), k).Iter()
@@ -76,11 +76,11 @@ func (c *Cassandra) Get(k string) ([]byte, error) {
 		return nil, err
 	}
 
-	return v, nil
+	return &v, nil
 }
 
-func (c *Cassandra) Put(k string, v []byte) error {
-	err := c.Session.Query(fmt.Sprintf(`INSERT INTO %s (ID, Payload) VALUES (?, ?);`, c.TableName), k, v).Exec()
+func (c *Cassandra) Put(k string, v *[]byte) error {
+	err := c.Session.Query(fmt.Sprintf(`INSERT INTO %s (ID, Payload) VALUES (?, ?);`, c.TableName), k, *v).Exec()
 	if err != nil {
 		return err
 	}
@@ -88,16 +88,14 @@ func (c *Cassandra) Put(k string, v []byte) error {
 	return nil
 }
 
-func (c *Cassandra) PutMany(kv map[string][]byte) error {
+func (c *Cassandra) PutMany(kv map[string]*[]byte) error {
 
 	firstV := make([]byte, 0)
 	for _, v := range kv {
-		firstV = v
+		firstV = *v
 	}
 
 	if len(firstV) < 1000 {
-		//fmt.Println("len(kv)", len(kv))
-
 		statement := "BEGIN BATCH "
 		var args []interface{}
 		for k, v := range kv {
@@ -106,10 +104,7 @@ func (c *Cassandra) PutMany(kv map[string][]byte) error {
 		}
 		statement += " APPLY BATCH"
 
-		//fmt.Println("args", args)
-		//fmt.Println("statement", statement)
 		res := c.Session.Query(statement, args...).Exec()
-		//fmt.Println("c.Session", c.Session)
 		if res != nil {
 			return res
 		}

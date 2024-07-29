@@ -9,7 +9,7 @@ import (
 
 type TestOp struct {
 	KeyId     int64
-	Value     []byte
+	Value     *[]byte
 	ValueSize int
 	OpType    utils.OpType
 }
@@ -52,7 +52,7 @@ func GetTestOp(existingRecords, newRecords []setup.TestRecord, newRecordI *int, 
 
 	return TestOp{
 		KeyId:     key,
-		Value:     payload,
+		Value:     &payload,
 		ValueSize: payloadSize,
 		OpType:    op,
 	}
