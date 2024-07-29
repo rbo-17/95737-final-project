@@ -52,8 +52,8 @@ func GetStarterDataSet(testType utils.TestDataType) (map[int64]TestRecord, error
 func GetTestDataSet(factor float64, dataType utils.TestDataType) (map[int64]TestRecord, error) {
 
 	smTxtCnt := int(math.Pow(10, 6) * factor)
-	lgTxtCnt := int(math.Pow(10, 4) * factor)
-	imgCnt := int(math.Pow(10, 2) * factor)
+	lgTxtCnt := int(math.Pow(10, 5) * factor)
+	imgCnt := int(math.Pow(10, 3) * factor)
 
 	var cnt int
 	var procFn GetTestDataPayload
@@ -87,67 +87,3 @@ func GetTestDataSet(factor float64, dataType utils.TestDataType) (map[int64]Test
 
 	return dataSet, nil
 }
-
-//func GetTestDataSet(factor float64) *TestDataSet {
-//
-//	smTxtCnt := int(math.Pow(10, 6) * factor)
-//	lgTxtCnt := int(math.Pow(10, 4) * factor)
-//	imgCnt := int(math.Pow(10, 2) * factor)
-//
-//	dataSet := TestDataSet{
-//		SmallTexts: make(map[int64]TestRecord, smTxtCnt),
-//		LargeTexts: make(map[int64]TestRecord, lgTxtCnt),
-//		Images:     make(map[int64]TestRecord, imgCnt),
-//	}
-//
-//	for i := 0; i < smTxtCnt; i++ {
-//		for {
-//			newKey := GetRandInt64()
-//
-//			_, ok := dataSet.SmallTexts[newKey]
-//			if ok {
-//				continue
-//			}
-//
-//			data := GetTestData(GetNextSmallTextBytes)
-//			dataSet.SmallTexts[newKey] = data
-//			break
-//		}
-//	}
-//
-//	for i := 0; i < lgTxtCnt; i++ {
-//		for {
-//			newKey := GetRandInt64()
-//
-//			_, ok := dataSet.LargeTexts[newKey]
-//			if ok {
-//				continue
-//			}
-//
-//			data := GetTestData(GetNextLargeTextBytes)
-//			dataSet.LargeTexts[newKey] = data
-//			break
-//		}
-//	}
-//
-//	for i := 0; i < imgCnt; i++ {
-//		for {
-//			newKey := GetRandInt64()
-//
-//			_, ok := dataSet.Images[newKey]
-//			if ok {
-//				continue
-//			}
-//
-//			data := GetTestData(GetImageBytes)
-//			dataSet.Images[newKey] = data
-//			break
-//		}
-//	}
-//
-//	return &dataSet
-//}
-
-//func (t *TestDataSet) GetRandomTestData() {
-//
-//}

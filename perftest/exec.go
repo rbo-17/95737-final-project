@@ -72,8 +72,6 @@ func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType) {
 
 func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops []TestOp) error {
 
-	//ops = ops[:1000]
-
 	inCh := make(chan TestOp, utils.WorkerCount)
 	outCh := make(chan TestOpResult, len(ops))
 	reqWg := new(sync.WaitGroup)
@@ -87,35 +85,23 @@ func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops
 		go PerformOpWorker(dbIns, inCh, outCh, reqWg)
 	}
 
-	//fmt.Println(len(ops))
-	//fmt.Println(ops[0])
-
 	// Start timer
 	start := time.Now()
 
 	// Load data into channel
 	for _, op := range ops {
-		//fmt.Println("before")
 		inCh <- op
-		//fmt.Println("after")
-		//if i%10000 == 0 {
-		//	utils.Print(fmt.Sprintf("Loaded %d records into channel", i))
-		//}
 	}
 
-	//utils.Print(fmt.Sprintf("All data loaded into channels, proceeding to wait..."))
+	utils.Print(fmt.Sprintf("All data loaded into channels, proceeding to wait..."))
 
 	close(inCh)
-
-	//utils.Print("closed, waiting")
 	reqWg.Wait()
 
 	// Stop timer
 	dur := time.Since(start)
 
 	close(outCh)
-
-	//utils.Print("waiting done")
 
 	// Read results
 	for res := range outCh {
@@ -138,14 +124,9 @@ func PerformOpWorker(db dbi.Db, inCh chan TestOp, outCh chan TestOpResult, wg *s
 	defer wg.Done()
 
 	for op := range inCh {
-		//fmt.Println("PerformOpWorker start")
 		res := PerformOp(db, op)
-		//fmt.Println("res", res)
 		outCh <- res
-		//fmt.Println("PerformOpWorker end")
 	}
-
-	//fmt.Println("finishing...")
 }
 
 func PerformOp(db dbi.Db, op TestOp) TestOpResult {

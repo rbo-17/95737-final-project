@@ -5,22 +5,6 @@ import (
 	"log"
 )
 
-//
-//import (
-//	"log"
-//	"os"
-//)
-//
-//func init(dbName string) {
-//
-//}
-//
-//func GetLogger() {
-//	logger := log.New(os.Stdout, dbName, log.LstdFlags)
-//
-//	logger.SetPrefix()
-//}
-
 type LogPrefixData struct {
 	DbName   string
 	TestType TestType
