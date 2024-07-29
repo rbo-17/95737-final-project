@@ -136,7 +136,7 @@ def write_csv(fname: str, keys: list[str], data: list[dict]):
 
 # Write all summaries to file
 for key, summaries in db_summaries.items():
-    sorted_summaries = sorted(summaries, key=lambda d: d['result_name'])
+    sorted_summaries = sorted(summaries, key=lambda d: d['result_name'], reverse=True)
     write_csv(key, summaries[0].keys(), sorted_summaries)
 
 # Get latencies and write to file

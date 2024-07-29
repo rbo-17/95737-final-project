@@ -25,8 +25,6 @@ func init() {
 		panic(err)
 	}
 
-	//fmt.Println(ImagePath)
-
 	img, _, err = image.Decode(f)
 	if err != nil {
 		panic(err)
@@ -35,8 +33,6 @@ func init() {
 	bounds := img.Bounds()
 	width = bounds.Dx()
 	height = bounds.Dy()
-	//fmt.Println("width", width)
-	//fmt.Println("height", height)
 }
 
 func GetNextImage() image.Image {
@@ -49,7 +45,6 @@ func GetNextImage() image.Image {
 
 	newWidth := GetRandRange(imgWidthMin, imgWidthMax)
 
-	//fmt.Println("img", img)
 	cropSize := image.Rect(0, 0, newWidth, newWidth)
 	cropSize = cropSize.Add(image.Point{xStart, yStart})
 	croppedImage := img.(SubImager).SubImage(cropSize)

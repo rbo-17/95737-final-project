@@ -72,7 +72,7 @@ func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType) {
 
 func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops []TestOp) error {
 
-	inCh := make(chan TestOp, utils.WorkerCount)
+	inCh := make(chan *TestOp, utils.WorkerCount)
 	outCh := make(chan TestOpResult, len(ops))
 	reqWg := new(sync.WaitGroup)
 	responses := make([]TestOpResult, 0)
@@ -90,7 +90,7 @@ func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops
 
 	// Load data into channel
 	for _, op := range ops {
-		inCh <- op
+		inCh <- &op
 	}
 
 	utils.Print(fmt.Sprintf("All data loaded into channels, proceeding to wait..."))
@@ -119,7 +119,7 @@ func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops
 	return nil
 }
 
-func PerformOpWorker(db dbi.Db, inCh chan TestOp, outCh chan TestOpResult, wg *sync.WaitGroup) {
+func PerformOpWorker(db dbi.Db, inCh chan *TestOp, outCh chan TestOpResult, wg *sync.WaitGroup) {
 
 	defer wg.Done()
 
@@ -129,7 +129,7 @@ func PerformOpWorker(db dbi.Db, inCh chan TestOp, outCh chan TestOpResult, wg *s
 	}
 }
 
-func PerformOp(db dbi.Db, op TestOp) TestOpResult {
+func PerformOp(db dbi.Db, op *TestOp) TestOpResult {
 
 	start := time.Now()
 

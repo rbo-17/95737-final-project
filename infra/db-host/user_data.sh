@@ -91,6 +91,7 @@ sed -i "s|# broadcast_rpc_address: 1.2.3.4|broadcast_rpc_address: ${PRIVATE_IP}|
 ## Restart service
 service cassandra start
 
+## TODO: IMPORTANT - The setup-cassandra.sh file currently must be ran manually on the instance (run transfer-to-instance)
 
 # Setup MongoDB
 # See: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/

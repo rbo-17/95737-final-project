@@ -23,16 +23,6 @@ type TestOpResult struct {
 	Err     error
 }
 
-//type Record struct {
-//	Uid       int64
-//	Value     []byte
-//	ValueSize int
-//}
-
-//func testDataMapToList(dataMap map[int64]setup.TestRecord) []Record {
-//
-//}
-
 func GetTestOp(existingRecords, newRecords []setup.TestRecord, newRecordI *int, op utils.OpType) TestOp {
 
 	var key int64
@@ -99,17 +89,6 @@ func GetTestOps(existingRecords, newRecords []setup.TestRecord, writeFactor floa
 }
 
 func Prepare(starterRecordsMap, newRecordsMap map[int64]setup.TestRecord, testType utils.TestType, dataType utils.TestDataType) ([]TestOp, error) {
-
-	//switch testDataType {
-	//case setup.TestDataTypeSm:
-	//	newRecords = newDataSet.SmallTexts
-	//case setup.TestDataTypeLg:
-	//	newRecords = newDataSet.LargeTexts
-	//case setup.TestDataTypeImg:
-	//	newRecords = newDataSet.Images
-	//default:
-	//	return nil, errors.New("invalid test data type provided")
-	//}
 
 	// Convert maps to lists
 	starterRecordsList := setup.RecordsMapToList(starterRecordsMap)

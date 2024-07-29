@@ -52,8 +52,6 @@ func (m *MongoDB) Init() error {
 
 	uri := fmt.Sprintf("%s://%s:%s@%s:27017/%s", protocol, userName, password, hostName, connOpts)
 
-	fmt.Println("uri", uri)
-
 	// Use the SetServerAPIOptions() method to set the Stable API version to 1
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)

@@ -1,5 +1,5 @@
 ENV_FILE=$1
-if ! test -f ${ENV_FILE}; then
+if [ -z "${ENV_FILE}" ]; then
   echo "Please provide a valid env file that contains MySQL connection data. Exiting..."
   exit 1
 fi
