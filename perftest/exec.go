@@ -72,7 +72,8 @@ func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType) {
 
 func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops []TestOp) error {
 
-	inCh := make(chan *TestOp, utils.WorkerCount)
+	startCh := make(chan bool, utils.WorkerCount)
+	inCh := make(chan *TestOp, len(ops))
 	outCh := make(chan TestOpResult, len(ops))
 	reqWg := new(sync.WaitGroup)
 	responses := make([]TestOpResult, 0)
@@ -82,15 +83,20 @@ func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops
 	// Create workers
 	for i := 0; i < utils.WorkerCount; i++ {
 		reqWg.Add(1)
-		go PerformOpWorker(dbIns, inCh, outCh, reqWg)
+		go PerformOpWorker(dbIns, startCh, inCh, outCh, reqWg)
+	}
+
+	// Load data into channel
+	for _, op := range ops {
+		inCh <- &op
 	}
 
 	// Start timer
 	start := time.Now()
 
-	// Load data into channel
-	for _, op := range ops {
-		inCh <- &op
+	// Give signal to start
+	for i := 0; i < utils.WorkerCount; i++ {
+		startCh <- true
 	}
 
 	utils.Print(fmt.Sprintf("All data loaded into channels, proceeding to wait..."))
@@ -119,9 +125,11 @@ func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops
 	return nil
 }
 
-func PerformOpWorker(db dbi.Db, inCh chan *TestOp, outCh chan TestOpResult, wg *sync.WaitGroup) {
+func PerformOpWorker(db dbi.Db, startCh chan bool, inCh chan *TestOp, outCh chan TestOpResult, wg *sync.WaitGroup) {
 
 	defer wg.Done()
+
+	_ = <-startCh
 
 	for op := range inCh {
 		res := PerformOp(db, op)
