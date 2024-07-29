@@ -133,6 +133,7 @@ func PerformOp(db dbi.Db, op TestOp) TestOpResult {
 
 	start := time.Now()
 
+	bCnt := 0
 	if op.OpType == utils.OpTypeGet {
 		key := db.GetKey(strconv.Itoa(int(op.KeyId)))
 		res, err := db.Get(key)
@@ -144,11 +145,14 @@ func PerformOp(db dbi.Db, op TestOp) TestOpResult {
 				Latency: 0,
 				Ok:      false,
 				Err:     err,
+				Bytes:   0,
 			}
 		}
 
+		bCnt = len(*res)
+
 		// Validate returned bytes matches expected value
-		if len(*res) != op.ValueSize {
+		if bCnt != op.ValueSize {
 			errMsg := fmt.Sprintf("bytes returned (%d) do not match expected count (%d)", len(*res), op.ValueSize)
 			return TestOpResult{
 				Time:    start,
@@ -157,6 +161,7 @@ func PerformOp(db dbi.Db, op TestOp) TestOpResult {
 				Latency: 0,
 				Ok:      false,
 				Err:     errors.New(errMsg),
+				Bytes:   bCnt,
 			}
 		}
 
@@ -171,8 +176,11 @@ func PerformOp(db dbi.Db, op TestOp) TestOpResult {
 				Latency: 0,
 				Ok:      false,
 				Err:     err,
+				Bytes:   0,
 			}
 		}
+
+		bCnt = len(*op.Value)
 
 	} else {
 		return TestOpResult{
@@ -182,6 +190,7 @@ func PerformOp(db dbi.Db, op TestOp) TestOpResult {
 			Latency: 0,
 			Ok:      false,
 			Err:     errors.New("invalid OpType detected"),
+			Bytes:   0,
 		}
 	}
 
@@ -194,6 +203,7 @@ func PerformOp(db dbi.Db, op TestOp) TestOpResult {
 		Latency: dur.Microseconds(),
 		Ok:      true,
 		Err:     nil,
+		Bytes:   bCnt,
 	}
 }
 
@@ -215,6 +225,7 @@ func WriteResultsToFile(dbName string, totalTimeTaken time.Duration, testType ut
 			strconv.Itoa(int(res.Latency)),
 			strconv.FormatBool(res.Ok),
 			errMsg,
+			strconv.Itoa(res.Bytes),
 		}
 	}
 
@@ -238,7 +249,7 @@ func WriteResultsToFile(dbName string, totalTimeTaken time.Duration, testType ut
 	// Write the CSV data
 	writer := csv.NewWriter(csvFile)
 
-	headers := []string{"Time", "Op", "Key id", "Latency", "Ok", "Error"}
+	headers := []string{"Time", "Op", "Key id", "Latency", "Ok", "Error", "Size(B)"}
 	err = writer.Write(headers)
 	if err != nil {
 		return err

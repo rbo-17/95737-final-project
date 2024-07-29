@@ -21,6 +21,7 @@ type TestOpResult struct {
 	Latency int64
 	Ok      bool
 	Err     error
+	Bytes   int
 }
 
 func GetTestOp(existingRecords, newRecords []setup.TestRecord, newRecordI *int, op utils.OpType) TestOp {

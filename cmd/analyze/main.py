@@ -109,6 +109,9 @@ for results_file in results_files:
     ops_per_ms = test_metadata["op_count"] / int(test_metadata["duration_ms"])
     test_metadata["ops_per_second"] = int(ops_per_ms * 1000.0)
 
+    bytes_per_ms = test_metadata["op_count"] / int(test_metadata["duration_ms"])
+
+
     # if int(test_metadata["duration_ms"]) > 0:
     #     print(int(test_metadata["duration_ms"]))
     #     duration_s = int(test_metadata["duration_ms"] / 1000)
