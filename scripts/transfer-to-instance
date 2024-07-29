@@ -1,0 +1,23 @@
+#!/bin/bash
+
+INSTANCE_NAME='cmu95737-db-host'
+INSTANCE_COUNT=$(aws ec2 describe-instances --filters Name='tag:Name',Values=${INSTANCE_NAME} Name=instance-state-name,Values=running | jq -r '.Reservations' | jq length)
+
+if [[ ${INSTANCE_COUNT} -eq 0 ]]; then
+  echo "No VM detected! Exiting..."
+  return 1
+
+elif [[ ! ${INSTANCE_COUNT} -eq 1 ]]; then
+  echo "Unexpected count of VMs detected! Exiting..."
+  return 1
+
+fi
+
+INSTANCE_IP=$(aws ec2 describe-instances --filters Name='tag:Name',Values=${INSTANCE_NAME} Name=instance-state-name,Values=running | jq -r '.Reservations[].Instances[] | .PublicIpAddress')
+
+for FILENAME_PATH in scripts/*; do
+  FILENAME=$(basename ${FILENAME_PATH})
+  scp -i ~/cmu95737.pem ${FILENAME_PATH} ubuntu@${INSTANCE_IP}:/home/ubuntu/${FILENAME}
+done
+
+scp -i ~/cmu95737.pem ubuntu.env ubuntu@${INSTANCE_IP}:/home/ubuntu/.env

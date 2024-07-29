@@ -2,10 +2,12 @@
 .idea/
 
 # Environment variables
-.env
+*.env
+!example.env
 
 # Results files
 results/
+95737-results-*.zip
 
 # Terraform state & lock files
 .terraform/
@@ -14,3 +16,6 @@ terraform.*
 
 # Python venv
 venv/
+
+# Script generated files
+setup-mongodb.js

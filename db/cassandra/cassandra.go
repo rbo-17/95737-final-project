@@ -94,7 +94,7 @@ func (c *Cassandra) PutMany(kv map[string][]byte) error {
 	for _, v := range kv {
 		firstV = v
 	}
-
+:
 	if len(firstV) < 1000 {
 		//fmt.Println("len(kv)", len(kv))
 
