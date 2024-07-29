@@ -51,7 +51,7 @@ func GetStarterDataSet(testType utils.TestDataType) (map[int64]TestRecord, error
 
 func GetTestDataSet(factor float64, dataType utils.TestDataType) (map[int64]TestRecord, error) {
 
-	smTxtCnt := int(math.Pow(10, 6) * factor)
+	smTxtCnt := int(math.Pow(10, 7) * factor)
 	lgTxtCnt := int(math.Pow(10, 5) * factor)
 	imgCnt := int(math.Pow(10, 3) * factor)
 
