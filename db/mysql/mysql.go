@@ -91,7 +91,7 @@ func (m *MySQL) GetKey(keyId string) string {
 	return keyId
 }
 
-func (m *MySQL) Get(k string) ([]byte, error) {
+func (m *MySQL) Get(k string) (*[]byte, error) {
 
 	var res KeyValue
 	err := m.GetStmt.QueryRow(k).Scan(&res.Key, &res.Value)
@@ -102,12 +102,12 @@ func (m *MySQL) Get(k string) ([]byte, error) {
 		return nil, err
 	}
 
-	return res.Value, nil
+	return &res.Value, nil
 }
 
-func (m *MySQL) Put(k string, v []byte) error {
+func (m *MySQL) Put(k string, v *[]byte) error {
 
-	input := make(map[string][]byte, 1)
+	input := make(map[string]*[]byte, 1)
 	input[k] = v
 
 	err := m.PutMany(input)
@@ -118,13 +118,13 @@ func (m *MySQL) Put(k string, v []byte) error {
 	return nil
 }
 
-func (m *MySQL) PutMany(kv map[string][]byte) error {
+func (m *MySQL) PutMany(kv map[string]*[]byte) error {
 
 	sqlStr := fmt.Sprintf("INSERT INTO %s(ID, Value) VALUES", m.TableName)
 	var vals []interface{}
 	for k, v := range kv {
 		sqlStr += " (?, ?),"
-		vals = append(vals, k, v)
+		vals = append(vals, k, *v)
 	}
 
 	// trim the last ,

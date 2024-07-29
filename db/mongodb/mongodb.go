@@ -76,7 +76,7 @@ func (m *MongoDB) GetName() string {
 	return m.Name
 }
 
-func (m *MongoDB) Get(k string) ([]byte, error) {
+func (m *MongoDB) Get(k string) (*[]byte, error) {
 
 	filter := bson.D{{"_id", k}}
 
@@ -86,14 +86,14 @@ func (m *MongoDB) Get(k string) ([]byte, error) {
 		return nil, err
 	}
 
-	return res.Value, nil
+	return &res.Value, nil
 }
 
-func (m *MongoDB) Put(k string, v []byte) error {
+func (m *MongoDB) Put(k string, v *[]byte) error {
 
 	record := bson.D{
 		{"_id", k},
-		{"value", v},
+		{"value", *v},
 	}
 
 	_, err := m.Collection.InsertOne(ctx, record)
@@ -104,12 +104,12 @@ func (m *MongoDB) Put(k string, v []byte) error {
 	return nil
 }
 
-func (m *MongoDB) PutMany(kv map[string][]byte) error {
+func (m *MongoDB) PutMany(kv map[string]*[]byte) error {
 	var input []interface{}
 	for k, v := range kv {
 		record := bson.D{
 			{"_id", k},
-			{"value", v},
+			{"value", *v},
 		}
 
 		input = append(input, record)
