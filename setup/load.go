@@ -22,11 +22,11 @@ func LoadStarterDataset(dbIns db.Db, dataType utils.TestDataType) (map[int64]Tes
 	bCnt := 0
 	for i := 0; i < len(dataSetList); i += 100 {
 		batchList := dataSetList[i : i+100]
-		batch := make(map[string][]byte, len(batchList))
+		batch := make(map[string]*[]byte, len(batchList))
 
 		for _, v := range batchList {
 			key := dbIns.GetKey(strconv.Itoa(int(v.KeyId)))
-			batch[key] = v.Value
+			batch[key] = &v.Value
 			bCnt += len(v.Value)
 		}
 
