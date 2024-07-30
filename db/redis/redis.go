@@ -35,9 +35,10 @@ func (r *Redis) Init() error {
 	r.C = &c
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:6379", c.Address),
-		Password: c.Password,
-		DB:       0, // use default DB
+		Addr:        fmt.Sprintf("%s:6379", c.Address),
+		Password:    c.Password,
+		DB:          0,  // use default DB
+		ReadTimeout: -1, // no timeout
 	})
 
 	r.Rdb = rdb
