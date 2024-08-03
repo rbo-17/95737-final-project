@@ -1,6 +1,9 @@
 package utils
 
-import "errors"
+import (
+	"errors"
+	"strconv"
+)
 
 func TestTypeToWriteFactor(testType TestType) (float64, error) {
 	var writeFactor float64
@@ -16,4 +19,18 @@ func TestTypeToWriteFactor(testType TestType) (float64, error) {
 	}
 
 	return writeFactor, nil
+}
+
+type TestOpts struct {
+	DenormalizationFactor int
+}
+
+func (o *TestOpts) GetFilenameChars() string {
+
+	res := ""
+	if o.DenormalizationFactor != 1 {
+		res += "-df" + strconv.Itoa(o.DenormalizationFactor)
+	}
+
+	return res
 }

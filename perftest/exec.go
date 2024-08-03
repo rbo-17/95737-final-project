@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType) {
+func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType, opts utils.TestOpts) {
 	utils.UpdatePrefix(db.GetName(), testType, dataType)
 
 	// Set up db connection and load test data
@@ -22,7 +22,7 @@ func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType) {
 		panic(err)
 	}
 
-	sds, err := setup.LoadStarterDataset(db, dataType)
+	sds, err := setup.LoadStarterDataset(db, dataType, opts)
 	if err != nil {
 		panic(err)
 	}
@@ -34,7 +34,7 @@ func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType) {
 	}
 
 	// Add extra to write factor to account for random variation
-	nds, err := setup.GetTestDataSet(writeFactor+0.05, dataType)
+	nds, err := setup.GetTestDataSet(writeFactor+0.05, dataType, opts)
 	if err != nil {
 		panic(err)
 	}
@@ -49,13 +49,13 @@ func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType) {
 
 	utils.Print("Loading complete. Starting test now.")
 	start := time.Now()
-	err = Run(db, testType, dataType, ops)
+	err = Run(db, testType, dataType, ops, opts)
 	if err != nil {
 		panic(err)
 	}
 
 	dur := int(time.Since(start).Seconds())
-	utils.Print(fmt.Sprintf("Testing completed in %d seconds.", dur))
+	utils.Print(fmt.Sprintf("Testing completed in %d seconds. Flushing db...", dur))
 
 	// Clean up db
 	err = db.DeleteAll()
@@ -68,9 +68,11 @@ func RunTest(db dbi.Db, testType utils.TestType, dataType utils.TestDataType) {
 	if err != nil {
 		panic(err)
 	}
+
+	utils.Print("Cleanup complete")
 }
 
-func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops []TestOp) error {
+func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops []TestOp, opts utils.TestOpts) error {
 
 	inCh := make(chan TestOp, len(ops))
 	outCh := make(chan TestOpResult, len(ops))
@@ -111,7 +113,7 @@ func Run(dbIns dbi.Db, testType utils.TestType, dataType utils.TestDataType, ops
 	utils.Print("All data has been received, writing to file")
 
 	// Write results to file
-	err := WriteResultsToFile(dbIns.GetName(), dur, testType, dataType, &responses)
+	err := WriteResultsToFile(dbIns.GetName(), dur, testType, dataType, &responses, opts)
 	if err != nil {
 		return err
 	}
@@ -207,7 +209,7 @@ func PerformOp(db dbi.Db, op TestOp) TestOpResult {
 	}
 }
 
-func WriteResultsToFile(dbName string, totalTimeTaken time.Duration, testType utils.TestType, dataType utils.TestDataType, results *[]TestOpResult) error {
+func WriteResultsToFile(dbName string, totalTimeTaken time.Duration, testType utils.TestType, dataType utils.TestDataType, results *[]TestOpResult, opts utils.TestOpts) error {
 
 	// Convert results to list of lists of strings
 	output := make([][]string, len(*results))
@@ -238,7 +240,7 @@ func WriteResultsToFile(dbName string, totalTimeTaken time.Duration, testType ut
 
 	// Create new file
 	ts := time.Now().Unix()
-	fname := fmt.Sprintf("%s/%s-%s-%s-%d-%d.csv", resultsDir, dbName, testType, dataType, totalTimeTaken.Milliseconds(), ts)
+	fname := fmt.Sprintf("%s/%s-%s-%s-%d-%d%s.csv", resultsDir, dbName, testType, dataType, totalTimeTaken.Milliseconds(), ts, opts.GetFilenameChars())
 	csvFile, err := os.Create(fname)
 	if err != nil {
 		return err

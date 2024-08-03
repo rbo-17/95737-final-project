@@ -5,6 +5,7 @@ const DbNameMongoDB = "mongodb"
 const DbNameCassandra = "cassandra"
 const DbNameMySQL = "mysql"
 
+const DenormalizationFactor = 16
 const WorkerCount = 250
 
 type TestType string

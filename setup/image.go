@@ -2,6 +2,7 @@ package setup
 
 import (
 	"bytes"
+	"github.com/rbo-17/95737-final-project/utils"
 	"image"
 	"image/png"
 	"os"
@@ -35,7 +36,7 @@ func init() {
 	height = bounds.Dy()
 }
 
-func GetNextImage() image.Image {
+func GetNextImage(opts utils.TestOpts) image.Image {
 
 	xStartRange := width - imgWidthMax
 	xStart := GetRandRange(0, xStartRange)
@@ -52,27 +53,22 @@ func GetNextImage() image.Image {
 	return croppedImage
 }
 
-func GetNextImageBytes() []byte {
+func GetNextImageBytes(opts utils.TestOpts) ([]byte, error) {
 
-	nextImage := GetNextImage()
+	var res []byte
 
-	buf := new(bytes.Buffer)
-	err := png.Encode(buf, nextImage)
-	if err != nil {
-		panic(err)
+	// Create n independent images and append the bytes. TODO: Consider creating one large image instead
+	for i := 0; i < opts.DenormalizationFactor; i++ {
+		nextImage := GetNextImage(opts)
+
+		buf := new(bytes.Buffer)
+		err := png.Encode(buf, nextImage)
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, buf.Bytes()...)
 	}
 
-	return buf.Bytes()
-}
-
-func PrintImage() {
-	//nf, err := os.Create("image.png")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//err = png.Encode(nf, croppedImage)
-	//if err != nil {
-	//	panic(err)
-	//}
+	return res, nil
 }

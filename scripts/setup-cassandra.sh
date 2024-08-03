@@ -18,5 +18,5 @@ python3.9 /usr/bin/cqlsh.py -u ${CASSANDRA_USERNAME} -p ${CASSANDRA_PASSWORD} -e
 #python3.9 /usr/bin/cqlsh.py -u ${CASSANDRA_USERNAME} -p ${CASSANDRA_PASSWORD} -e "CREATE ROLE IF NOT EXISTS ${CASSANDRA_USERNAME} WITH PASSWORD = '${CASSANDRA_PASSWORD}' AND LOGIN = true;"
 #python3.9 /usr/bin/cqlsh.py -u ${CASSANDRA_USERNAME} -p ${CASSANDRA_PASSWORD} -e "GRANT ALL PERMISSIONS on KEYSPACE \"${CASSANDRA_DB_NAME}\" to ${CASSANDRA_USERNAME};"
 
-# Note: Path may change depending on where this script is run
+# Note: Path pf setup-cassandra.cql may change depending on where this script is run
 python3.9 /usr/bin/cqlsh.py -u ${CASSANDRA_USERNAME} -p ${CASSANDRA_PASSWORD} < ./setup-cassandra.cql

@@ -1,9 +1,8 @@
 package setup
 
 import (
+	"github.com/rbo-17/95737-final-project/utils"
 	"io"
-	"math/rand"
-	//"math/rand/v2"
 	"os"
 )
 
@@ -20,9 +19,6 @@ var textLen int
 var textLenStartMax int
 
 func init() {
-
-	//var source int64 = 95737
-	//rand.Seed(source)
 
 	// Load text
 	file, err := os.Open(TextPath)
@@ -50,34 +46,26 @@ func GetNextText(start, end int) string {
 
 	textLenStartMax = textLen - end
 
-	startChar := rand.Intn(textLenStartMax)
-	endChar := startChar + (rand.Intn(end-start) + start)
+	startChar := GetRandLimit(textLenStartMax)      // Get random start
+	endChar := startChar + GetRandRange(start, end) // Get random end between start & end
 
 	return textStr[startChar:endChar]
 }
 
-func GetNextSmallText() string {
-	//txt := GetNextText(smallTextLenMin, smallTextLenMax)
-	//fmt.Println("txt", txt)
-	//fmt.Println("len(txt)", len(txt))
-
-	return GetNextText(smallTextLenMin, smallTextLenMax)
+func GetNextSmallText(opts utils.TestOpts) string {
+	df := GetRandRange(1, opts.DenormalizationFactor+1)
+	return GetNextText(smallTextLenMin*df, smallTextLenMax*df)
 }
 
-func GetNextSmallTextBytes() []byte {
-	return []byte(GetNextSmallText())
+func GetNextSmallTextBytes(opts utils.TestOpts) ([]byte, error) {
+	return []byte(GetNextSmallText(opts)), nil
 }
 
-func GetNextLargeText() string {
-	//fmt.Println("fetching text for datasize", (largeTextLenMax - largeTextLenMin))
-
-	//txt := GetNextText(largeTextLenMin, largeTextLenMax)
-	//fmt.Println("txt", txt)
-	//fmt.Println("len(txt)", len(txt))
-
-	return GetNextText(largeTextLenMin, largeTextLenMax)
+func GetNextLargeText(opts utils.TestOpts) string {
+	df := GetRandRange(1, opts.DenormalizationFactor+1)
+	return GetNextText(largeTextLenMin*df, largeTextLenMax*df)
 }
 
-func GetNextLargeTextBytes() []byte {
-	return []byte(GetNextLargeText())
+func GetNextLargeTextBytes(opts utils.TestOpts) ([]byte, error) {
+	return []byte(GetNextLargeText(opts)), nil
 }
