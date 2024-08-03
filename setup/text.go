@@ -53,8 +53,7 @@ func GetNextText(start, end int) string {
 }
 
 func GetNextSmallText(opts utils.TestOpts) string {
-	df := GetRandRange(1, opts.DenormalizationFactor+1)
-	return GetNextText(smallTextLenMin*df, smallTextLenMax*df)
+	return GetNextText(smallTextLenMin*opts.DenormalizationFactor, smallTextLenMax*opts.DenormalizationFactor)
 }
 
 func GetNextSmallTextBytes(opts utils.TestOpts) ([]byte, error) {
@@ -62,8 +61,7 @@ func GetNextSmallTextBytes(opts utils.TestOpts) ([]byte, error) {
 }
 
 func GetNextLargeText(opts utils.TestOpts) string {
-	df := GetRandRange(1, opts.DenormalizationFactor+1)
-	return GetNextText(largeTextLenMin*df, largeTextLenMax*df)
+	return GetNextText(largeTextLenMin*opts.DenormalizationFactor, largeTextLenMax*opts.DenormalizationFactor)
 }
 
 func GetNextLargeTextBytes(opts utils.TestOpts) ([]byte, error) {
