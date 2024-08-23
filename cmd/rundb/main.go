@@ -28,9 +28,13 @@ func main() {
 	testTypes := []utils.TestType{utils.TestTypeRead, utils.TestTypeBalanced, utils.TestTypeWrite}
 	dataTypes := []utils.TestDataType{utils.TestDataTypeSm, utils.TestDataTypeLg, utils.TestDataTypeImg}
 
+	opts := utils.TestOpts{
+		DenormalizationFactor: 1,
+	}
+
 	for _, testType := range testTypes {
 		for _, dataType := range dataTypes {
-			perftest.RunTest(db, testType, dataType)
+			perftest.RunTest(db, testType, dataType, opts)
 		}
 	}
 }

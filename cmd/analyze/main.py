@@ -144,7 +144,7 @@ for results_file in results_files:
     bytes_processed = functools.reduce(lambda s, r: s + int(r["Size(B)"]), results, 0)
     bytes_per_ms = bytes_processed / int(test_summary["duration_ms"])
     test_summary["bytes_per_second"] = int(bytes_per_ms * 1000.0)
-    test_summary["mb_per_second"] = round(test_summary["bytes_per_second"] / 2 ** 20, 2)
+    test_summary["mb_per_second"] = round(test_summary["bytes_per_second"] / 1000000, 2)
 
     # Assign a denormalization key to make sorting easier
     denormalization_key_mapping = {

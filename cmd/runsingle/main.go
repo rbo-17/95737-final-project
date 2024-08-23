@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rbo-17/95737-final-project/perftest"
 	"github.com/rbo-17/95737-final-project/setup"
+	"github.com/rbo-17/95737-final-project/utils"
 	"os"
 )
 
@@ -34,5 +35,9 @@ func main() {
 	testType := setup.ValidateTestTypeArg(testTypeArg)
 	dataType := setup.ValidateDataTypeArg(dataTypeArg)
 
-	perftest.RunTest(db, testType, dataType)
+	opts := utils.TestOpts{
+		DenormalizationFactor: 1,
+	}
+
+	perftest.RunTest(db, testType, dataType, opts)
 }

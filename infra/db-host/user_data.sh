@@ -64,7 +64,6 @@ apt install -y openjdk-8-jre-headless apt-transport-https
 
 ## Update repo list
 echo "deb [signed-by=/etc/apt/keyrings/apache-cassandra.asc] https://debian.cassandra.apache.org 41x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
-deb https://debian.cassandra.apache.org 41x main
 curl -o /etc/apt/keyrings/apache-cassandra.asc https://downloads.apache.org/cassandra/KEYS
 apt update
 
@@ -123,3 +122,5 @@ sudo systemctl start mongod
 
 # Write done message to home directory
 touch /home/ubuntu/cloud-init-done.txt
+
+# TODO: Stop services
