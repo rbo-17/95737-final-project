@@ -1,6 +1,6 @@
 # Follow Up: Analyzing the Potential Benefits of Denormalization
 
-The results of the prior testing seemed to indicate the denormalizing a NoSQL database may have significant benefits
+The results of the prior testing seemed to indicate that denormalizing NoSQL databases may have significant benefits
 to application performance. This test seeks to further shed light on these potential benefits.
 
 
